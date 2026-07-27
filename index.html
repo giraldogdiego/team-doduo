@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Onhand — CS6750 Final Prototype (Team Doduo)</title>
+<title>Onhand: CS6750 Final Prototype (Team Doduo)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -123,7 +123,7 @@ body{
 .now-card h2{margin:0;font-size:22px;line-height:1.24;font-weight:600;letter-spacing:-.015em}
 .now-card .meta{font-size:12.5px;opacity:.66;margin-top:7px}
 
-/* swipe rail — the signature element */
+/* swipe rail */
 .rail{
   margin-top:15px;height:52px;border-radius:14px;position:relative;overflow:hidden;
   background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);
@@ -497,8 +497,9 @@ body{
     <span class="tag">CS6750 · Team Doduo · Final prototype v1</span>
   </div>
   <p class="lede">
-    Capturing a task and recording it done, one-handed and away from a desk. The lock screen carries the whole
-    loop; messages become tasks in place; the system only infers a completion when it can show you exactly what it saw.
+    An interface for capturing a task and recording it as done while away from a desk. The lock screen carries the
+    whole loop. A message can become a task without leaving the conversation. The system only suggests a completion
+    when it can show what it saw.
   </p>
 
   <div class="stage">
@@ -681,7 +682,7 @@ body{
               <div class="review-head">
                 <div class="k">8:10 PM · Evening review</div>
                 <h1 id="revH1">Three rough captures</h1>
-                <p id="revP">You wrote these down without stopping. Sort them now, or leave them and they will wait.</p>
+                <p id="revP">These were captured during the day without stopping to sort them. Sort them now, or leave them for tomorrow.</p>
               </div>
               <div class="prog" id="revProg"></div>
               <div id="revBody"></div>
@@ -695,7 +696,7 @@ body{
             <div class="sheet-grab"></div>
             <h3 id="sheetKicker">Capture · phone stays locked</h3>
             <div class="field">
-              <input id="capInput" placeholder="What just came up?" autocomplete="off">
+              <input id="capInput" placeholder="Write the task" autocomplete="off">
               <button class="mic" id="micBtn" aria-label="Dictate instead">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#14181D" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
               </button>
@@ -710,7 +711,7 @@ body{
               <button class="btn ghost" id="capCancel">Cancel</button>
               <button class="btn primary" id="capSave" disabled>Save</button>
             </div>
-            <p class="hint" id="capHint">Type it, or hold the mic. A date is optional — a task with nothing attached is still a task.</p>
+            <p class="hint" id="capHint">Type the task, or hold the microphone to speak it. A date is optional.</p>
           </div>
 
           <div class="toast" id="toast">
@@ -730,7 +731,7 @@ body{
           <div class="homebar"></div>
         </div>
       </div>
-      <p class="caption" id="caption">1 / 6 — Lock screen. Drag the rail to complete without unlocking.</p>
+      <p class="caption" id="caption">1 of 6. Lock screen. Drag the rail to mark the task done.</p>
     </div>
 
     <!-- ============ PRESENTER PANEL ============ -->
@@ -748,10 +749,10 @@ body{
 
       <div class="legend">
         <b>Reading the interface</b><br>
-        <span class="sw-inline" style="background:#0B6B53"></span>green marks something <b>you</b> did<br>
-        <span class="sw-inline" style="background:#4B3FA8"></span>purple marks something <b>Onhand inferred</b>, always with the evidence beside it<br>
-        <span class="sw-inline" style="background:#9A6B00"></span>amber marks a task <b>waiting on a place or a time</b><br>
-        <span style="display:block;margin-top:10px">Machine-generated facts — timestamps, evidence, counts — are set in mono. Anything a person wrote is set in the body face.</span>
+        <span class="sw-inline" style="background:#0B6B53"></span>Green marks a completion <b>you</b> performed<br>
+        <span class="sw-inline" style="background:#4B3FA8"></span>Purple marks a completion <b>Onhand inferred</b>, shown with the evidence beside it<br>
+        <span class="sw-inline" style="background:#9A6B00"></span>Amber marks a task <b>waiting on a place or a signal</b><br>
+        <span style="display:block;margin-top:10px">Timestamps, evidence, and counts are set in a monospaced face. Anything a person wrote is set in the body face.</span>
       </div>
       <div style="height:14px"></div>
     </div>
@@ -796,29 +797,29 @@ var state = {
 
 var STEPS = [
   { scene:"lock", title:"Capture and complete on the lock screen",
-    cap:"Lock screen. Drag the rail to complete without unlocking.",
-    d:"One task, chosen by time and place. Drag the rail to mark it done, or press the button below to capture a new one. The phone never unlocks.",
-    why:"<b>Recognition over recall</b> — one task, not a list. <b>Fitts's law</b> — the rail is a full-width target you can hit while walking. <b>Distributed cognition</b> — the done thread underneath is the external record, visible at a glance." },
-  { scene:"lock", title:"Saving says so, and can be taken back",
-    cap:"Quick capture. Type or dictate, then Save.",
-    d:"The capture sheet opens over the lock screen. Nothing is required except the words. The confirmation names where the task went and gives you six seconds to undo.",
-    why:"Answers the first-round complaint that people <b>could not tell whether a task had synced</b>. The toast is <b>visibility of system status</b>; Undo is <b>user control and freedom</b>." },
-  { scene:"chat", title:"A message becomes a task in place",
+    cap:"Lock screen. Drag the rail to mark the task done.",
+    d:"One task is shown, chosen by time and place. Drag the rail to mark it done, or use the control at the bottom to capture a new one. The phone stays locked.",
+    why:"Showing one task instead of a list trades <b>recall for recognition</b>. The rail is a wide target, which follows <b>Fitts's law</b> and is easy to hit while walking. The record underneath is the external memory the user has to be able to trust." },
+  { scene:"lock", title:"Saving is confirmed and can be undone",
+    cap:"Quick capture. Type the task or speak it, then save.",
+    d:"The capture sheet opens over the lock screen. Only the text is required. The confirmation names where the task went and gives six seconds to undo.",
+    why:"The first evaluation found that participants could not tell whether a task had saved. The confirmation is <b>visibility of system status</b>, and the undo control is <b>user control and freedom</b>." },
+  { scene:"chat", title:"Making a task out of a message",
     cap:"Messages. Press and hold the third bubble.",
-    d:"Press and hold Ana's message. The task keeps a link back to the thread, so you never have to retype what someone asked for.",
-    why:"The In-App Embedding path — the one 38% chose to develop further. <b>Match between system and world</b>: the task is created where it was born, and the link back closes the <b>gulf of evaluation</b> later." },
-  { scene:"confirm", title:"An inference shows its evidence",
-    cap:"Inferred completion. It asks; it does not decide.",
-    d:"The bank confirmed a payment. Onhand does not tick the box — it shows you the exact alert it read and asks. Either answer takes one tap.",
-    why:"Automation was the least trusted design (3.43 mean). This is the fix: the trigger is <b>visible</b>, the wrong guess costs one tap, and no state changes without you. Only ever a pre-check, never a silent write." },
-  { scene:"auto", title:"Every signal is nameable and switchable",
-    cap:"Automations. What it can see, plainly.",
-    d:"Each signal states what it can and cannot see, in plain words. The log below shows how often the guesses were right, including the two that were wrong.",
-    why:"Participants asked for <b>control over which signals are monitored</b> and <b>a history they could review</b>. Publishing the error count builds calibrated trust rather than blind trust." },
-  { scene:"review", title:"The day's rough captures get sorted once",
-    cap:"Evening review. Three cards, three taps.",
-    d:"Onhand stays quiet all day. At 8:10 PM the rough captures come back once, and each takes one tap to keep, schedule, or drop.",
-    why:"Answers the rival explanation that <b>reminders are mostly noise</b>. Capture and organizing are separate cognitive jobs; the second one is deferred to a moment when recognition is cheap." }
+    d:"Press and hold Ana's message. The task keeps a link back to the thread, so nothing has to be retyped.",
+    why:"This is the In-App Embedding path that 38% of participants chose to develop further. Creating the task where it appears is a <b>match between the system and the real world</b>, and the link back supplies the context the task title cannot." },
+  { scene:"confirm", title:"An inferred completion shows its evidence",
+    cap:"Inferred completion. The system asks rather than deciding.",
+    d:"A bank alert matched a bill task. Onhand does not mark it done. It shows the alert it read and asks. Either answer takes one tap.",
+    why:"Automation received the lowest trust rating in the first evaluation, at 3.43. Showing the evidence lets the user judge this guess rather than the automation as a whole, and a wrong guess costs one tap to correct. Nothing is recorded until the user answers." },
+  { scene:"auto", title:"Every signal can be named and switched off",
+    cap:"Automations. What each signal can and cannot see.",
+    d:"Each signal states what it can and cannot see in plain words. The log below shows the recent guesses, including the two that were wrong.",
+    why:"Participants asked for <b>control over which signals are monitored</b> and for <b>a history they could review</b>. Reporting the error count lets the user judge how far to rely on the automation." },
+  { scene:"review", title:"Rough captures are sorted once, in the evening",
+    cap:"Evening review. One card at a time.",
+    d:"Onhand does not notify during the day. At 8:10 PM the rough captures come back once, and each one takes a single tap to keep, to tie to a place, or to drop.",
+    why:"Our review analysis found that <b>notification complaints</b> were the most common theme in the coded sample. Capture and organizing are two different jobs, and the second one can wait for a moment when the user is not busy." }
 ];
 
 /* ---------------- helpers ---------------- */
@@ -862,7 +863,7 @@ function renderSteps(){
     li.appendChild(b); ul.appendChild(li);
   });
   $("panelCount").textContent = "Step "+(state.step+1)+" of "+STEPS.length;
-  $("caption").textContent = (state.step+1)+" / "+STEPS.length+" — "+STEPS[state.step].cap;
+  $("caption").textContent = (state.step+1)+" of "+STEPS.length+". "+STEPS[state.step].cap;
 }
 
 /* ---------------- done thread ---------------- */
@@ -975,12 +976,12 @@ $("micBtn").addEventListener("click", function(){
   var b=$("micBtn");
   if (b.classList.contains("rec")){ b.classList.remove("rec"); return; }
   b.classList.add("rec");
-  $("capHint").textContent = "Listening… release when you stop talking. Nothing is sent anywhere.";
+  $("capHint").textContent = "Listening. Speak the task and it will appear in the field.";
   setTimeout(function(){
     b.classList.remove("rec");
     capInput.value = "Ask the landlord about the water bill";
     capSave.disabled=false;
-    $("capHint").textContent = "Heard it. Edit before saving if it got a word wrong.";
+    $("capHint").textContent = "Edit the text before saving if a word came out wrong.";
   }, 1500);
 });
 
@@ -1019,7 +1020,7 @@ $("undoBtn").addEventListener("click", function(){
   if (undoAction) undoAction();
   clearTimeout(toastTimer);
   hideToast();
-  showToastPlain("Undone", "nothing was saved");
+  showToastPlain("Undone", "the last change was reversed");
 });
 function showToastPlain(t1,t2){
   $("toastT1").textContent=t1; $("toastT2").textContent=t2;
@@ -1063,7 +1064,7 @@ function renderHome(){
   var nowWrap=$("homeNow"), later=$("homeLater"), done=$("homeDone");
   nowWrap.innerHTML=""; later.innerHTML=""; done.innerHTML="";
   if (state.now) nowWrap.appendChild(taskNode(state.now, {focus:true}));
-  else nowWrap.appendChild(el("div","foot-note","Nothing is due right now. That is allowed."));
+  else nowWrap.appendChild(el("div","foot-note","Nothing is due right now."));
   state.later.forEach(function(t){ later.appendChild(taskNode(t,{})); });
   state.done.slice().reverse().forEach(function(d){
     done.appendChild(taskNode({title:d.txt, meta:d.ts+(d.sys?" · you confirmed":"")}, {checked:true}));
@@ -1139,11 +1140,11 @@ function renderReview(){
     var b=el("i"); if(i<state.revIndex) b.className="on"; prog.appendChild(b);
   });
   if (state.revIndex >= state.captures.length){
-    $("revH1").textContent="All clear";
-    $("revP").textContent="That is the whole review. Onhand goes quiet until tomorrow.";
+    $("revH1").textContent="Review finished";
+    $("revP").textContent="Onhand does not notify again until tomorrow.";
     var d=el("div","rdone");
     d.innerHTML='<div class="big"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>'+
-      '<h2>Sorted in 40 seconds</h2><p>Three rough captures turned into two tasks and one you let go. Nothing interrupted you to get here.</p>';
+      '<h2>Review finished</h2><p>Three captures were sorted in one pass. Onhand did not interrupt you to get here.</p>';
     var again=el("button","btn","Run it again");
     again.style.marginTop="18px";
     again.addEventListener("click", function(){ state.revIndex=0; renderReview(); });
@@ -1152,19 +1153,19 @@ function renderReview(){
     return;
   }
   $("revH1").textContent = "Three rough captures";
-  $("revP").textContent = "You wrote these down without stopping. Sort them now, or leave them and they will wait.";
+  $("revP").textContent = "These were captured during the day without stopping to sort them. Sort them now, or leave them for tomorrow.";
   var c = state.captures[state.revIndex];
   var card = el("div","rcard");
   card.innerHTML = '<div class="cap">'+esc(c.txt)+'</div><div class="when">'+esc(c.when)+'</div>';
   var acts = el("div","acts");
-  [["Make it a task for tomorrow","task"],["Tie it to a place","place"],["Let it go","drop"]].forEach(function(a){
+  [["Make it a task for tomorrow","task"],["Tie it to a place","place"],["Drop it","drop"]].forEach(function(a){
     var b = el("button","btn", a[0]);
     if (a[1]==="task") b.className="btn primary";
     b.addEventListener("click", function(){
       if (a[1]==="task"){ state.later.push({ id:"r"+Date.now(), title:c.txt, meta:"Tomorrow", src:null }); }
       state.revIndex++;
       renderReview();
-      if (a[1]==="drop") showToastPlain("Let go", "not everything you write down is a task");
+      if (a[1]==="drop") showToastPlain("Dropped", "removed from the list");
     });
     acts.appendChild(b);
   });
