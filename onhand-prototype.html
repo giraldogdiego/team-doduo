@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onhand — CS6750 Final Prototype (Team Doduo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14181D;
+  --ink-2:#49525E;
+  --ink-3:#7C8794;
+  --paper:#FAF9F6;
+  --card:#FFFFFF;
+  --line:#E4E3DD;
+  --line-2:#F0EFE9;
+  --teal:#0B6B53;
+  --teal-soft:#E4F0EB;
+  --indigo:#4B3FA8;
+  --indigo-soft:#ECE9FA;
+  --amber:#9A6B00;
+  --amber-soft:#F7EFDA;
+  --lock-1:#171C24;
+  --lock-2:#243040;
+  --lock-3:#2E3B4B;
+  --radius:18px;
+  --phone-w:390px;
+  --phone-h:844px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:#E8E7E1;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  min-height:100vh;
+  padding:28px 20px 60px;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.grotesk{font-family:"Space Grotesk",Inter,sans-serif}
+
+/* ---------- page shell ---------- */
+.shell{max-width:1080px;margin:0 auto}
+.masthead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.wordmark{font-family:"Space Grotesk";font-weight:700;font-size:26px;letter-spacing:-.02em}
+.wordmark .dot{color:var(--teal)}
+.masthead .sub{font-size:13px;color:var(--ink-2)}
+.masthead .tag{
+  font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--line);padding:3px 8px;border-radius:999px;background:#fff
+}
+.lede{font-size:14px;line-height:1.6;color:var(--ink-2);max-width:62ch;margin:0 0 22px}
+
+.stage{display:grid;grid-template-columns:minmax(0,430px) minmax(0,1fr);gap:36px;align-items:start}
+@media (max-width:900px){.stage{grid-template-columns:1fr}}
+
+/* ---------- phone ---------- */
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:14px;position:sticky;top:24px}
+@media (max-width:900px){.phone-col{position:static}}
+.phone{
+  width:var(--phone-w);height:var(--phone-h);max-width:100%;
+  background:#0C0F13;border-radius:50px;padding:11px;
+  box-shadow:0 40px 70px -30px rgba(12,15,19,.55), 0 0 0 1px rgba(0,0,0,.35);
+  position:relative;flex-shrink:0
+}
+.screen{
+  width:100%;height:100%;border-radius:40px;overflow:hidden;position:relative;
+  background:var(--paper);display:flex;flex-direction:column
+}
+.notch{
+  position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:112px;height:29px;background:#0C0F13;border-radius:0 0 18px 18px;z-index:60
+}
+.statusbar{
+  position:absolute;top:0;left:0;right:0;height:52px;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 26px 0;font-size:13px;font-weight:600;pointer-events:none
+}
+.statusbar .right{display:flex;gap:5px;align-items:center;font-size:11px}
+.screen.dark .statusbar{color:#fff}
+.homebar{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.22;z-index:55
+}
+.screen.dark .homebar{background:#fff;opacity:.5}
+
+/* ---------- scenes ---------- */
+.scene{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
+.scene.on{display:flex}
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain}
+.scroll::-webkit-scrollbar{width:0}
+
+/* ---------- lock screen ---------- */
+.scene-lock{
+  background:
+    radial-gradient(120% 80% at 78% 8%, #33445A 0%, rgba(51,68,90,0) 58%),
+    radial-gradient(90% 60% at 12% 96%, #1E3A34 0%, rgba(30,58,52,0) 62%),
+    linear-gradient(168deg,var(--lock-1) 0%,var(--lock-2) 58%,var(--lock-3) 100%);
+  color:#fff;padding:0 18px
+}
+.lock-clock{padding:74px 8px 0;text-align:center}
+.lock-clock .t{font-family:"Space Grotesk";font-weight:500;font-size:80px;line-height:.92;letter-spacing:-.045em}
+.lock-clock .d{font-size:14px;opacity:.72;margin-top:8px;letter-spacing:.01em}
+
+.now-label{
+  display:flex;align-items:center;gap:8px;margin:34px 4px 9px;
+  font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;opacity:.62
+}
+.now-label::after{content:"";flex:1;height:1px;background:currentColor;opacity:.28}
+
+.glass{
+  background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
+  border-radius:22px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
+}
+.now-card{padding:17px 17px 15px}
+.now-card .why{
+  font-family:"IBM Plex Mono";font-size:11px;letter-spacing:.01em;opacity:.7;
+  display:flex;align-items:center;gap:6px;margin-bottom:9px
+}
+.pin{width:11px;height:11px;flex-shrink:0;opacity:.85}
+.now-card h2{margin:0;font-size:22px;line-height:1.24;font-weight:600;letter-spacing:-.015em}
+.now-card .meta{font-size:12.5px;opacity:.66;margin-top:7px}
+
+/* swipe rail — the signature element */
+.rail{
+  margin-top:15px;height:52px;border-radius:14px;position:relative;overflow:hidden;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);
+  cursor:grab;touch-action:none;user-select:none
+}
+.rail:active{cursor:grabbing}
+.rail:focus-visible{outline:2px solid #9EE7CE;outline-offset:3px}
+.rail .fill{
+  position:absolute;inset:0;width:0;background:linear-gradient(90deg,#0E7A5E,#17A57C);
+  transition:width .16s ease
+}
+.rail.dragging .fill{transition:none}
+.rail .rail-label{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:13.5px;font-weight:600;letter-spacing:.005em;pointer-events:none;opacity:.9
+}
+.rail .knob{
+  position:absolute;top:4px;left:4px;width:44px;height:42px;border-radius:11px;
+  background:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(0,0,0,.32);transition:left .16s ease
+}
+.rail.dragging .knob{transition:none}
+.rail .knob svg{stroke:var(--teal)}
+
+.strip{margin-top:13px;padding:13px 16px}
+.strip .head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.6
+}
+.thread{margin-top:11px;display:flex;flex-direction:column;gap:0}
+.thread-item{display:flex;gap:11px;align-items:flex-start;padding-bottom:11px;position:relative}
+.thread-item:last-child{padding-bottom:0}
+.thread-item::before{
+  content:"";position:absolute;left:5px;top:14px;bottom:0;width:1px;background:rgba(255,255,255,.2)
+}
+.thread-item:last-child::before{display:none}
+.tick{
+  width:11px;height:11px;border-radius:50%;background:#17A57C;flex-shrink:0;margin-top:3px;
+  box-shadow:0 0 0 3px rgba(23,165,124,.18)
+}
+.tick.sys{background:#8E7FE8;box-shadow:0 0 0 3px rgba(142,127,232,.18)}
+.thread-item .txt{font-size:13px;line-height:1.35;opacity:.92}
+.thread-item .ts{font-family:"IBM Plex Mono";font-size:10.5px;opacity:.55;margin-top:2px}
+
+.lock-foot{
+  position:absolute;bottom:26px;left:0;right:0;display:flex;flex-direction:column;
+  align-items:center;gap:9px;z-index:40
+}
+.grab{
+  width:60px;height:4px;border-radius:3px;background:rgba(255,255,255,.42);
+  animation:nudge 2.6s ease-in-out infinite
+}
+@keyframes nudge{0%,100%{transform:translateY(0);opacity:.42}50%{transform:translateY(-5px);opacity:.85}}
+.capture-cta{
+  display:flex;align-items:center;gap:9px;padding:11px 20px;border-radius:999px;
+  background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);
+  color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)
+}
+.capture-cta:hover{background:rgba(255,255,255,.19)}
+
+/* ---------- capture sheet ---------- */
+.sheet-back{position:absolute;inset:0;background:rgba(8,11,15,.5);z-index:70;display:none}
+.sheet-back.on{display:block}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:80;background:var(--card);
+  border-radius:26px 26px 0 0;padding:9px 20px 26px;transform:translateY(102%);
+  transition:transform .26s cubic-bezier(.22,.9,.3,1);box-shadow:0 -14px 40px rgba(0,0,0,.24)
+}
+.sheet.on{transform:translateY(0)}
+.sheet-grab{width:38px;height:4px;border-radius:3px;background:var(--line);margin:0 auto 15px}
+.sheet h3{
+  margin:0 0 4px;font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3)
+}
+.field{display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--ink);padding:9px 0 11px}
+.field input{
+  flex:1;border:0;outline:0;font-family:inherit;font-size:19px;font-weight:500;
+  color:var(--ink);background:transparent;letter-spacing:-.01em;min-width:0
+}
+.field input::placeholder{color:#B7BDC5;font-weight:400}
+.mic{
+  width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0
+}
+.mic:hover{background:#F1F0EA}
+.mic.rec{background:#FCE9E6;border-color:#F0C4BD;animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(179,38,30,.25)}50%{box-shadow:0 0 0 8px rgba(179,38,30,0)}}
+.chips{display:flex;gap:7px;margin-top:15px;flex-wrap:wrap}
+.chip{
+  padding:8px 13px;border-radius:999px;border:1px solid var(--line);background:var(--paper);
+  font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink-2);cursor:pointer;display:flex;gap:6px;align-items:center
+}
+.chip:hover{border-color:#CFCEC6}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.sheet-row{display:flex;gap:10px;margin-top:18px;align-items:center}
+.btn{
+  font-family:inherit;font-size:14.5px;font-weight:600;padding:14px 20px;border-radius:14px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer
+}
+.btn:hover{background:var(--paper)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff;flex:1}
+.btn.primary:hover{background:#242A32}
+.btn.primary:disabled{opacity:.32;cursor:not-allowed}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.hint{font-size:11.5px;color:var(--ink-3);margin-top:12px;line-height:1.5}
+
+/* ---------- toast ---------- */
+.toast{
+  position:absolute;left:14px;right:14px;bottom:26px;z-index:120;
+  background:var(--ink);color:#fff;border-radius:16px;padding:13px 15px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 16px 34px rgba(0,0,0,.34);
+  transform:translateY(150%);transition:transform .28s cubic-bezier(.22,.9,.3,1);opacity:.99
+}
+.toast.on{transform:translateY(0)}
+.toast .check{
+  width:24px;height:24px;border-radius:50%;background:#17A57C;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.toast .body{flex:1;min-width:0}
+.toast .body .t1{font-size:13.5px;font-weight:600;letter-spacing:-.005em}
+.toast .body .t2{font-family:"IBM Plex Mono";font-size:10.5px;opacity:.62;margin-top:2px}
+.toast .undo{
+  background:transparent;border:1px solid rgba(255,255,255,.28);color:#fff;
+  font-family:inherit;font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:10px;
+  cursor:pointer;display:flex;align-items:center;gap:7px;flex-shrink:0
+}
+.toast .undo:hover{background:rgba(255,255,255,.12)}
+.ring{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:2.5}
+.ring .bg{stroke:rgba(255,255,255,.22)}
+.ring .fg{stroke:#fff;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+
+/* ---------- app chrome ---------- */
+.appbar{padding:60px 20px 12px;background:var(--paper)}
+.appbar .row{display:flex;align-items:center;justify-content:space-between}
+.appbar h1{font-family:"Space Grotesk";font-size:27px;font-weight:700;letter-spacing:-.03em;margin:0}
+.appbar .sub{font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3);margin-top:3px;letter-spacing:.02em}
+.icon-btn{
+  width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);
+  display:flex;align-items:center;justify-content:center;cursor:pointer
+}
+.icon-btn:hover{background:#F1F0EA}
+.sec{
+  font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3);margin:22px 20px 9px;display:flex;align-items:center;gap:8px
+}
+.sec::after{content:"";flex:1;height:1px;background:var(--line-2)}
+
+.task{
+  margin:0 20px 9px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px;display:flex;gap:12px;align-items:flex-start
+}
+.task.focus{border-color:var(--ink);box-shadow:0 6px 20px -10px rgba(20,24,29,.4)}
+.box{
+  width:23px;height:23px;border-radius:7px;border:2px solid #C6CBD2;background:var(--card);
+  flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0
+}
+.box:hover{border-color:var(--teal)}
+.box.done{background:var(--teal);border-color:var(--teal)}
+.box.sys{border-color:var(--indigo);border-style:dashed}
+.task .t{font-size:15.5px;font-weight:500;line-height:1.35;letter-spacing:-.005em}
+.task.checked .t{color:var(--ink-3);text-decoration:line-through}
+.task .m{font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3);margin-top:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.src{
+  display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:6px;
+  font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.02em
+}
+.src.msg{background:var(--indigo-soft);color:var(--indigo)}
+.src.place{background:var(--teal-soft);color:var(--teal)}
+.src.wait{background:var(--amber-soft);color:var(--amber)}
+
+.capture-bar{
+  border-top:1px solid var(--line);background:var(--card);padding:12px 16px 26px;
+  display:flex;align-items:center;gap:10px
+}
+.capture-bar .fake{
+  flex:1;border:1px solid var(--line);border-radius:14px;padding:13px 14px;
+  color:#A9B0B9;font-size:15px;background:var(--paper);cursor:text;text-align:left;font-family:inherit
+}
+.capture-bar .fake:hover{border-color:#CFCEC6}
+.round{
+  width:46px;height:46px;border-radius:50%;background:var(--ink);border:0;color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0
+}
+.round:hover{background:#242A32}
+
+/* ---------- chat ---------- */
+.scene-chat{background:var(--paper)}
+.chat-head{
+  padding:58px 18px 12px;border-bottom:1px solid var(--line);background:var(--card);
+  display:flex;align-items:center;gap:11px
+}
+.avatar{
+  width:34px;height:34px;border-radius:50%;background:#DCE4E0;color:var(--teal);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0
+}
+.chat-head .nm{font-size:15.5px;font-weight:600}
+.chat-head .st{font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink-3)}
+.msgs{padding:16px 16px 8px;display:flex;flex-direction:column;gap:9px}
+.bub{max-width:78%;padding:11px 14px;border-radius:19px;font-size:14.5px;line-height:1.42}
+.bub.them{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px;align-self:flex-start}
+.bub.me{background:var(--ink);color:#fff;border-bottom-right-radius:6px;align-self:flex-end}
+.bub.actionable{cursor:pointer;position:relative}
+.bub.actionable:hover{border-color:var(--indigo)}
+.bub.actionable::after{
+  content:"press and hold";position:absolute;left:2px;bottom:-16px;
+  font-family:"IBM Plex Mono";font-size:9.5px;color:var(--ink-3);letter-spacing:.04em;white-space:nowrap
+}
+.bub.lifted{
+  transform:scale(1.03);box-shadow:0 12px 28px -12px rgba(20,24,29,.5);
+  border-color:var(--indigo);transition:transform .16s ease
+}
+.ctx-menu{
+  position:absolute;z-index:90;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:5px;box-shadow:0 20px 44px -16px rgba(0,0,0,.4);display:none;min-width:224px
+}
+.ctx-menu.on{display:block}
+.ctx-menu button{
+  display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:0;background:transparent;
+  font-family:inherit;font-size:14px;color:var(--ink);border-radius:11px;cursor:pointer;text-align:left
+}
+.ctx-menu button:hover{background:var(--paper)}
+.ctx-menu button.key{font-weight:600;color:var(--indigo)}
+.ctx-menu hr{border:0;border-top:1px solid var(--line-2);margin:4px 8px}
+
+/* ---------- inferred completion banner ---------- */
+.scene-confirm{background:var(--paper)}
+.banner-wrap{padding:58px 14px 0}
+.banner{
+  background:var(--card);border:1px solid var(--line);border-radius:22px;padding:15px;
+  box-shadow:0 18px 40px -22px rgba(20,24,29,.55);animation:drop .34s cubic-bezier(.22,.9,.3,1)
+}
+@keyframes drop{from{transform:translateY(-22px);opacity:0}to{transform:translateY(0);opacity:1}}
+.banner .top{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.banner .app{
+  width:19px;height:19px;border-radius:5px;background:var(--ink);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:"Space Grotesk";font-weight:700;font-size:11px
+}
+.banner .top .n{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.banner .top .time{margin-left:auto;font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink-3)}
+.banner h3{margin:0;font-size:17.5px;font-weight:600;letter-spacing:-.015em;line-height:1.3}
+.evidence{
+  margin-top:11px;background:var(--indigo-soft);border-radius:12px;padding:11px 12px;
+  display:flex;gap:9px;align-items:flex-start
+}
+.evidence .lab{
+  font-family:"IBM Plex Mono";font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--indigo);opacity:.85
+}
+.evidence .val{font-family:"IBM Plex Mono";font-size:12px;color:var(--indigo);line-height:1.5;margin-top:3px}
+.banner .acts{display:flex;gap:8px;margin-top:13px}
+.banner .acts .btn{flex:1;padding:12px}
+.link-row{
+  margin-top:11px;text-align:center;font-size:12px;color:var(--ink-3);
+  background:none;border:0;font-family:inherit;cursor:pointer;width:100%;padding:4px
+}
+.link-row u{text-decoration-style:dotted;text-underline-offset:3px}
+.banner-note{
+  margin:14px 6px 0;font-size:11.5px;color:var(--ink-3);text-align:center;line-height:1.55
+}
+
+/* ---------- automations ---------- */
+.scene-auto{background:var(--paper)}
+.sig{
+  margin:0 20px 9px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px
+}
+.sig .r1{display:flex;align-items:flex-start;gap:12px}
+.sig .r1 .t{font-size:15px;font-weight:600;flex:1;letter-spacing:-.005em}
+.sig .d{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-top:7px}
+.sig .cando{
+  margin-top:10px;padding-top:10px;border-top:1px solid var(--line-2);
+  font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3);line-height:1.6
+}
+.sw{
+  width:48px;height:29px;border-radius:15px;background:#D3D7DC;border:0;position:relative;
+  cursor:pointer;flex-shrink:0;transition:background .18s ease;padding:0
+}
+.sw.on{background:var(--teal)}
+.sw::after{
+  content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.28);transition:left .18s ease
+}
+.sw.on::after{left:22px}
+.log{margin:0 20px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.log-row{padding:12px 14px;border-bottom:1px solid var(--line-2);display:flex;gap:10px;align-items:flex-start}
+.log-row:last-child{border-bottom:0}
+.log-row .dot{width:7px;height:7px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.log-row .dot.ok{background:var(--teal)}
+.log-row .dot.no{background:#B3261E}
+.log-row .t{font-size:13.5px;font-weight:500;line-height:1.35}
+.log-row .w{font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink-3);margin-top:4px;line-height:1.5}
+.foot-note{margin:16px 20px 26px;font-size:11.5px;color:var(--ink-3);line-height:1.6}
+
+/* ---------- review ---------- */
+.scene-review{background:var(--paper)}
+.review-head{padding:60px 20px 4px}
+.review-head .k{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.review-head h1{font-family:"Space Grotesk";font-size:26px;font-weight:700;letter-spacing:-.03em;margin:7px 0 5px}
+.review-head p{font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.5}
+.prog{display:flex;gap:5px;margin:16px 20px 12px}
+.prog i{flex:1;height:3px;border-radius:2px;background:var(--line)}
+.prog i.on{background:var(--ink)}
+.rcard{
+  margin:0 20px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;
+  box-shadow:0 10px 30px -20px rgba(20,24,29,.45)
+}
+.rcard .cap{font-size:19px;font-weight:600;line-height:1.32;letter-spacing:-.015em}
+.rcard .when{font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3);margin-top:9px}
+.rcard .acts{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.rcard .acts .btn{width:100%;text-align:left;display:flex;align-items:center;gap:10px}
+.rdone{margin:0 20px;text-align:center;padding:34px 10px}
+.rdone .big{
+  width:58px;height:58px;border-radius:50%;background:var(--teal-soft);color:var(--teal);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 15px
+}
+.rdone h2{font-family:"Space Grotesk";font-size:22px;margin:0 0 7px;letter-spacing:-.02em}
+.rdone p{font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.55}
+
+/* ---------- presenter panel ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px 22px 8px}
+.panel-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.panel-top .k{font-family:"IBM Plex Mono";font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{border-top:1px solid var(--line-2)}
+.steps li:first-child{border-top:0}
+.step-btn{
+  width:100%;display:flex;gap:14px;align-items:flex-start;padding:14px 4px;background:none;border:0;
+  font-family:inherit;text-align:left;cursor:pointer;color:var(--ink)
+}
+.step-btn:hover .st-t{color:var(--teal)}
+.step-btn .num{
+  font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3);padding-top:3px;width:20px;flex-shrink:0
+}
+.step-btn .st-t{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.step-btn .st-d{font-size:12.5px;color:var(--ink-2);line-height:1.55;margin-top:4px;display:none}
+.steps li.on .step-btn{background:var(--paper);border-radius:12px}
+.steps li.on .st-t{color:var(--teal)}
+.steps li.on .st-d{display:block}
+.steps li.on .num{color:var(--teal);font-weight:500}
+.why-line{
+  margin-top:8px;font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-3);
+  line-height:1.6;display:none;padding-left:0
+}
+.steps li.on .why-line{display:block}
+.why-line b{color:var(--ink-2);font-weight:500}
+
+.navrow{display:flex;gap:10px;margin-top:16px}
+.navrow .btn{flex:1;padding:12px}
+.legend{
+  margin-top:18px;border-top:1px solid var(--line-2);padding-top:16px;
+  font-size:12px;color:var(--ink-2);line-height:1.7
+}
+.legend b{font-weight:600;color:var(--ink)}
+.sw-inline{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.caption{
+  font-family:"IBM Plex Mono";font-size:11px;color:var(--ink-2);text-align:center;
+  letter-spacing:.02em;max-width:390px;line-height:1.6
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="masthead">
+    <div class="wordmark">Onhand<span class="dot">.</span></div>
+    <span class="tag">CS6750 · Team Doduo · Final prototype v1</span>
+  </div>
+  <p class="lede">
+    Capturing a task and recording it done, one-handed and away from a desk. The lock screen carries the whole
+    loop; messages become tasks in place; the system only infers a completion when it can show you exactly what it saw.
+  </p>
+
+  <div class="stage">
+
+    <!-- ============ PHONE ============ -->
+    <div class="phone-col">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen" id="screen">
+          <div class="statusbar" id="statusbar">
+            <span class="mono" id="sbTime">2:41</span>
+            <span class="right"><span>▮▮▮</span><span>WiFi</span><span>84%</span></span>
+          </div>
+
+          <!-- 1. LOCK -->
+          <section class="scene scene-lock" data-scene="lock">
+            <div class="lock-clock">
+              <div class="t">2:41</div>
+              <div class="d">Thursday, 12 November</div>
+            </div>
+
+            <div class="now-label">Now · Onhand</div>
+            <div class="glass now-card" id="nowCard">
+              <div class="why">
+                <svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+                <span>200 m away · Post office</span>
+              </div>
+              <h2 id="nowTitle">Pick up the parcel</h2>
+              <div class="meta" id="nowMeta">Added Tuesday · closes at 5:00</div>
+
+              <div class="rail" id="rail" role="button" tabindex="0" aria-label="Slide to mark done. Or press Enter.">
+                <div class="fill" id="railFill"></div>
+                <div class="rail-label" id="railLabel">Slide to mark done</div>
+                <div class="knob" id="railKnob">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass strip">
+              <div class="head"><span>Done today</span><span id="doneCount">2</span></div>
+              <div class="thread" id="doneThread"></div>
+            </div>
+
+            <div class="lock-foot">
+              <div class="grab"></div>
+              <button class="capture-cta" id="openCapture">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                Swipe up to capture
+              </button>
+            </div>
+          </section>
+
+          <!-- 2. HOME -->
+          <section class="scene" data-scene="home">
+            <div class="scroll">
+              <div class="appbar">
+                <div class="row">
+                  <div>
+                    <h1>Today</h1>
+                    <div class="sub" id="homeSub">3 open · 2 done</div>
+                  </div>
+                  <button class="icon-btn" id="toAuto" title="Automations">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="sec">Right now</div>
+              <div id="homeNow"></div>
+              <div class="sec">Later today</div>
+              <div id="homeLater"></div>
+              <div class="sec">Done today</div>
+              <div id="homeDone"></div>
+              <div style="height:14px"></div>
+            </div>
+            <div class="capture-bar">
+              <button class="fake" id="openCapture2">Write a task…</button>
+              <button class="round" id="openCapture3" aria-label="Capture by voice">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- 3. CHAT -->
+          <section class="scene scene-chat" data-scene="chat">
+            <div class="chat-head">
+              <div class="avatar">AR</div>
+              <div>
+                <div class="nm">Ana Restrepo</div>
+                <div class="st">active now</div>
+              </div>
+            </div>
+            <div class="scroll">
+              <div class="msgs">
+                <div class="bub them">Hey! Did the attribution numbers land for October?</div>
+                <div class="bub me">Yes, cleaned them up this morning</div>
+                <div class="bub them actionable" id="hotMsg">Can you send me that deck before the standup tomorrow?</div>
+                <div style="height:22px"></div>
+                <div class="bub me">On it</div>
+              </div>
+            </div>
+            <div class="capture-bar">
+              <button class="fake">Message</button>
+              <button class="round" aria-label="Send">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              </button>
+            </div>
+            <div class="ctx-menu" id="ctxMenu">
+              <button class="key" id="makeTask">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Make this a task
+              </button>
+              <hr>
+              <button>Reply</button>
+              <button>Copy</button>
+            </div>
+          </section>
+
+          <!-- 4. INFERRED COMPLETION -->
+          <section class="scene scene-confirm" data-scene="confirm">
+            <div class="banner-wrap">
+              <div class="banner">
+                <div class="top">
+                  <div class="app">O</div>
+                  <div class="n">Onhand</div>
+                  <div class="time">now</div>
+                </div>
+                <h3>Did you pay the electricity bill?</h3>
+                <div class="evidence">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4B3FA8" stroke-width="2.2" style="margin-top:2px;flex-shrink:0"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+                  <div>
+                    <div class="lab">What I saw</div>
+                    <div class="val">Bancolombia alert, 3:12 PM<br>"Pago EPM · $184.200"</div>
+                  </div>
+                </div>
+                <div class="acts">
+                  <button class="btn" id="notDone">Not yet</button>
+                  <button class="btn primary" id="yesDone" style="flex:1">Yes, done</button>
+                </div>
+                <button class="link-row" id="toAuto2"><u>Why am I seeing this?</u></button>
+              </div>
+              <p class="banner-note">Nothing is marked done until you answer. The task stays open if you dismiss this.</p>
+            </div>
+          </section>
+
+          <!-- 5. AUTOMATIONS -->
+          <section class="scene scene-auto" data-scene="auto">
+            <div class="scroll">
+              <div class="appbar">
+                <div class="row">
+                  <div>
+                    <h1>Automations</h1>
+                    <div class="sub">3 on · you approve every completion</div>
+                  </div>
+                  <button class="icon-btn" id="backHome" title="Back">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="sec">Signals I can watch</div>
+              <div id="sigList"></div>
+
+              <div class="sec">Recent guesses</div>
+              <div class="log">
+                <div class="log-row"><div class="dot ok"></div><div><div class="t">Pay the electricity bill</div><div class="w">Bank alert · you confirmed · 3:12 PM</div></div></div>
+                <div class="log-row"><div class="dot ok"></div><div><div class="t">Drop the return at the locker</div><div class="w">Left the locker after 4 min · you confirmed · Tue</div></div></div>
+                <div class="log-row"><div class="dot no"></div><div><div class="t">Buy dog food</div><div class="w">Walked past the pet shop · you corrected this · Mon</div></div></div>
+              </div>
+              <p class="foot-note">
+                Onhand has guessed 14 times this month and been wrong twice. Turning a signal off deletes what it already
+                collected. Nothing here leaves your phone.
+              </p>
+            </div>
+          </section>
+
+          <!-- 6. REVIEW -->
+          <section class="scene scene-review" data-scene="review">
+            <div class="scroll">
+              <div class="review-head">
+                <div class="k">8:10 PM · Evening review</div>
+                <h1 id="revH1">Three rough captures</h1>
+                <p id="revP">You wrote these down without stopping. Sort them now, or leave them and they will wait.</p>
+              </div>
+              <div class="prog" id="revProg"></div>
+              <div id="revBody"></div>
+              <div style="height:26px"></div>
+            </div>
+          </section>
+
+          <!-- shared sheet + toast -->
+          <div class="sheet-back" id="sheetBack"></div>
+          <div class="sheet" id="sheet">
+            <div class="sheet-grab"></div>
+            <h3 id="sheetKicker">Capture · phone stays locked</h3>
+            <div class="field">
+              <input id="capInput" placeholder="What just came up?" autocomplete="off">
+              <button class="mic" id="micBtn" aria-label="Dictate instead">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#14181D" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+              </button>
+            </div>
+            <div class="chips" id="capChips">
+              <button class="chip" data-chip="today">Today</button>
+              <button class="chip" data-chip="here">Here · Post office</button>
+              <button class="chip" data-chip="tonight">Tonight</button>
+              <button class="chip" data-chip="none">No date</button>
+            </div>
+            <div class="sheet-row">
+              <button class="btn ghost" id="capCancel">Cancel</button>
+              <button class="btn primary" id="capSave" disabled>Save</button>
+            </div>
+            <p class="hint" id="capHint">Type it, or hold the mic. A date is optional — a task with nothing attached is still a task.</p>
+          </div>
+
+          <div class="toast" id="toast">
+            <div class="check">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div class="body">
+              <div class="t1" id="toastT1">Saved</div>
+              <div class="t2" id="toastT2">on this phone · 2:41 PM</div>
+            </div>
+            <button class="undo" id="undoBtn">
+              <svg class="ring" width="17" height="17" viewBox="0 0 20 20"><circle class="bg" cx="10" cy="10" r="8"/><circle class="fg" id="ringFg" cx="10" cy="10" r="8" stroke-dasharray="50.3" stroke-dashoffset="0"/></svg>
+              Undo
+            </button>
+          </div>
+
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="caption" id="caption">1 / 6 — Lock screen. Drag the rail to complete without unlocking.</p>
+    </div>
+
+    <!-- ============ PRESENTER PANEL ============ -->
+    <div class="panel">
+      <div class="panel-top">
+        <span class="k">Walkthrough</span>
+        <span class="k" id="panelCount">Step 1 of 6</span>
+      </div>
+      <ul class="steps" id="steps"></ul>
+
+      <div class="navrow">
+        <button class="btn" id="prevBtn">Back</button>
+        <button class="btn primary" id="nextBtn" style="flex:1">Next step</button>
+      </div>
+
+      <div class="legend">
+        <b>Reading the interface</b><br>
+        <span class="sw-inline" style="background:#0B6B53"></span>green marks something <b>you</b> did<br>
+        <span class="sw-inline" style="background:#4B3FA8"></span>purple marks something <b>Onhand inferred</b>, always with the evidence beside it<br>
+        <span class="sw-inline" style="background:#9A6B00"></span>amber marks a task <b>waiting on a place or a time</b><br>
+        <span style="display:block;margin-top:10px">Machine-generated facts — timestamps, evidence, counts — are set in mono. Anything a person wrote is set in the body face.</span>
+      </div>
+      <div style="height:14px"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- state ---------------- */
+var state = {
+  scene: "lock",
+  step: 0,
+  now: { id:"t1", title:"Pick up the parcel", meta:"Added Tuesday · closes at 5:00", place:"200 m away · Post office" },
+  later: [
+    { id:"t2", title:"Pay the electricity bill", meta:"Due today", src:"wait", srcLabel:"waiting on bank" },
+    { id:"t3", title:"Buy coffee filters", meta:"No date", src:null }
+  ],
+  done: [
+    { txt:"Refilled Mateo's prescription", ts:"8:40 AM", sys:false },
+    { txt:"Replied to Priya about the invoice", ts:"11:05 AM", sys:false }
+  ],
+  signals: [
+    { id:"loc", on:true, t:"Places you arrive at", d:"When you reach a place a task is tied to, that task comes to the lock screen.",
+      cando:"can see: places you stop at for over 2 minutes\ncannot see: everywhere you go" },
+    { id:"pay", on:true, t:"Payment confirmations", d:"When your bank confirms a payment that matches a bill task, Onhand asks whether it is done.",
+      cando:"can see: the merchant name and amount in a bank alert\ncannot see: your balance or your statements" },
+    { id:"cal", on:true, t:"Meetings that end", d:"When a meeting on your calendar ends, tasks attached to it are offered for review.",
+      cando:"can see: start and end times, and the title\ncannot see: attendees or invitations" },
+    { id:"msg", on:false, t:"Messages you send", d:"When you send a file or a link to someone you owe one, Onhand asks whether that closes the task.",
+      cando:"can see: that you sent an attachment, and to whom\ncannot see: the contents of your messages" }
+  ],
+  captures: [
+    { txt:"ask about the warranty", when:"captured 9:12 AM · lock screen" },
+    { txt:"the thing with the landlord", when:"captured 1:47 PM · dictated" },
+    { txt:"birthday gift for Sofía", when:"captured 6:03 PM · lock screen" }
+  ],
+  revIndex: 0
+};
+
+var STEPS = [
+  { scene:"lock", title:"Capture and complete on the lock screen",
+    cap:"Lock screen. Drag the rail to complete without unlocking.",
+    d:"One task, chosen by time and place. Drag the rail to mark it done, or press the button below to capture a new one. The phone never unlocks.",
+    why:"<b>Recognition over recall</b> — one task, not a list. <b>Fitts's law</b> — the rail is a full-width target you can hit while walking. <b>Distributed cognition</b> — the done thread underneath is the external record, visible at a glance." },
+  { scene:"lock", title:"Saving says so, and can be taken back",
+    cap:"Quick capture. Type or dictate, then Save.",
+    d:"The capture sheet opens over the lock screen. Nothing is required except the words. The confirmation names where the task went and gives you six seconds to undo.",
+    why:"Answers the first-round complaint that people <b>could not tell whether a task had synced</b>. The toast is <b>visibility of system status</b>; Undo is <b>user control and freedom</b>." },
+  { scene:"chat", title:"A message becomes a task in place",
+    cap:"Messages. Press and hold the third bubble.",
+    d:"Press and hold Ana's message. The task keeps a link back to the thread, so you never have to retype what someone asked for.",
+    why:"The In-App Embedding path — the one 38% chose to develop further. <b>Match between system and world</b>: the task is created where it was born, and the link back closes the <b>gulf of evaluation</b> later." },
+  { scene:"confirm", title:"An inference shows its evidence",
+    cap:"Inferred completion. It asks; it does not decide.",
+    d:"The bank confirmed a payment. Onhand does not tick the box — it shows you the exact alert it read and asks. Either answer takes one tap.",
+    why:"Automation was the least trusted design (3.43 mean). This is the fix: the trigger is <b>visible</b>, the wrong guess costs one tap, and no state changes without you. Only ever a pre-check, never a silent write." },
+  { scene:"auto", title:"Every signal is nameable and switchable",
+    cap:"Automations. What it can see, plainly.",
+    d:"Each signal states what it can and cannot see, in plain words. The log below shows how often the guesses were right, including the two that were wrong.",
+    why:"Participants asked for <b>control over which signals are monitored</b> and <b>a history they could review</b>. Publishing the error count builds calibrated trust rather than blind trust." },
+  { scene:"review", title:"The day's rough captures get sorted once",
+    cap:"Evening review. Three cards, three taps.",
+    d:"Onhand stays quiet all day. At 8:10 PM the rough captures come back once, and each takes one tap to keep, schedule, or drop.",
+    why:"Answers the rival explanation that <b>reminders are mostly noise</b>. Capture and organizing are separate cognitive jobs; the second one is deferred to a moment when recognition is cheap." }
+];
+
+/* ---------------- helpers ---------------- */
+function $(id){ return document.getElementById(id); }
+function el(tag, cls, html){ var n=document.createElement(tag); if(cls) n.className=cls; if(html!=null) n.innerHTML=html; return n; }
+function nowStamp(){ return "2:41 PM"; }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+/* ---------------- scenes ---------------- */
+function show(scene){
+  state.scene = scene;
+  var all = document.querySelectorAll(".scene");
+  for (var i=0;i<all.length;i++) all[i].classList.toggle("on", all[i].dataset.scene===scene);
+  $("screen").classList.toggle("dark", scene==="lock");
+  if (scene==="home") renderHome();
+  if (scene==="auto") renderSignals();
+  if (scene==="review") renderReview();
+}
+
+function goStep(i){
+  if (i<0) i=0;
+  if (i>STEPS.length-1) i=STEPS.length-1;
+  state.step = i;
+  closeSheet(); hideToast(); hideCtx();
+  if (i===1){ show("lock"); setTimeout(openSheet, 220); }
+  else show(STEPS[i].scene);
+  if (i===5){ state.revIndex=0; renderReview(); }
+  renderSteps();
+}
+
+function renderSteps(){
+  var ul = $("steps"); ul.innerHTML="";
+  STEPS.forEach(function(s, i){
+    var li = el("li"); if(i===state.step) li.className="on";
+    var b = el("button","step-btn");
+    b.innerHTML = '<span class="num">'+String(i+1).padStart(2,"0")+'</span>'+
+      '<span><span class="st-t">'+s.title+'</span>'+
+      '<span class="st-d">'+s.d+'</span>'+
+      '<span class="why-line">'+s.why+'</span></span>';
+    b.addEventListener("click", function(){ goStep(i); });
+    li.appendChild(b); ul.appendChild(li);
+  });
+  $("panelCount").textContent = "Step "+(state.step+1)+" of "+STEPS.length;
+  $("caption").textContent = (state.step+1)+" / "+STEPS.length+" — "+STEPS[state.step].cap;
+}
+
+/* ---------------- done thread ---------------- */
+function renderThread(){
+  var wrap = $("doneThread"); wrap.innerHTML="";
+  state.done.slice(-3).forEach(function(d){
+    var row = el("div","thread-item");
+    row.innerHTML = '<div class="tick'+(d.sys?" sys":"")+'"></div>'+
+      '<div class="txt">'+esc(d.txt)+'<div class="ts">'+esc(d.ts)+(d.sys?" · confirmed by you":"")+'</div></div>';
+    wrap.appendChild(row);
+  });
+  $("doneCount").textContent = state.done.length;
+}
+
+/* ---------------- lock: swipe rail ---------------- */
+var rail=$("rail"), fill=$("railFill"), knob=$("railKnob"), railLabel=$("railLabel");
+var dragging=false, startX=0, pos=0, railMax=0;
+
+function railGeom(){ railMax = rail.offsetWidth - 52; }
+function setRail(p){
+  pos = Math.max(0, Math.min(railMax, p));
+  knob.style.left = (4+pos)+"px";
+  fill.style.width = (pos+48)+"px";
+  railLabel.style.opacity = String(Math.max(0, .9 - (pos/railMax)*1.15));
+}
+function resetRail(){ setRail(0); railLabel.style.opacity=".9"; }
+
+rail.addEventListener("pointerdown", function(e){
+  if (!state.now) return;
+  railGeom(); dragging=true; startX=e.clientX-pos;
+  rail.classList.add("dragging"); rail.setPointerCapture(e.pointerId);
+});
+rail.addEventListener("pointermove", function(e){
+  if(!dragging) return;
+  setRail(e.clientX-startX);
+});
+rail.addEventListener("pointerup", function(){
+  if(!dragging) return;
+  dragging=false; rail.classList.remove("dragging");
+  if (pos > railMax*0.72){ setRail(railMax); setTimeout(completeNow, 130); }
+  else resetRail();
+});
+rail.addEventListener("pointercancel", function(){ dragging=false; rail.classList.remove("dragging"); resetRail(); });
+rail.addEventListener("keydown", function(e){
+  if (e.key==="Enter" || e.key===" "){ e.preventDefault(); railGeom(); setRail(railMax); setTimeout(completeNow,150); }
+});
+
+function completeNow(){
+  if (!state.now) return;
+  var finished = state.now;
+  state.done.push({ txt:finished.title, ts:nowStamp(), sys:false });
+  // promote the next task to the lock screen
+  var next = state.later.shift();
+  state.now = next ? { id:next.id, title:next.title, meta:next.meta, place:next.src==="wait" ? "waiting on your bank" : "no place attached" } : null;
+  renderNow();
+  renderThread();
+  showToast("Done · "+finished.title, "recorded on this phone · "+nowStamp(), function(){
+    // undo
+    var back = state.done.pop();
+    if (state.now) state.later.unshift({ id:state.now.id, title:state.now.title, meta:state.now.meta, src:null });
+    state.now = { id:finished.id, title:back.txt, meta:finished.meta, place:finished.place };
+    renderNow(); renderThread();
+  });
+}
+
+function renderNow(){
+  var card = $("nowCard");
+  if (!state.now){
+    card.style.display="none";
+    return;
+  }
+  card.style.display="";
+  $("nowTitle").textContent = state.now.title;
+  $("nowMeta").textContent = state.now.meta;
+  card.querySelector(".why span").textContent = state.now.place;
+  resetRail();
+}
+
+/* ---------------- capture sheet ---------------- */
+var sheet=$("sheet"), sheetBack=$("sheetBack"), capInput=$("capInput"), capSave=$("capSave");
+var pendingChip="today", captureMode="lock";
+
+function openSheet(mode){
+  captureMode = mode || "lock";
+  $("sheetKicker").textContent = captureMode==="lock" ? "Capture · phone stays locked" : "Capture";
+  sheetBack.classList.add("on"); sheet.classList.add("on");
+  setTimeout(function(){ capInput.focus(); }, 240);
+}
+function closeSheet(){
+  sheet.classList.remove("on"); sheetBack.classList.remove("on");
+  capInput.value=""; capSave.disabled=true; $("micBtn").classList.remove("rec");
+}
+capInput.addEventListener("input", function(){ capSave.disabled = capInput.value.trim().length===0; });
+capInput.addEventListener("keydown", function(e){ if(e.key==="Enter" && !capSave.disabled) saveCapture(); });
+$("openCapture").addEventListener("click", function(){ openSheet("lock"); });
+$("openCapture2").addEventListener("click", function(){ openSheet("app"); });
+$("openCapture3").addEventListener("click", function(){ openSheet("app"); $("micBtn").click(); });
+$("capCancel").addEventListener("click", closeSheet);
+sheetBack.addEventListener("click", closeSheet);
+$("capSave").addEventListener("click", saveCapture);
+
+document.querySelectorAll("#capChips .chip").forEach(function(c){
+  c.addEventListener("click", function(){
+    document.querySelectorAll("#capChips .chip").forEach(function(x){ x.classList.remove("on"); });
+    c.classList.add("on"); pendingChip = c.dataset.chip;
+  });
+});
+
+$("micBtn").addEventListener("click", function(){
+  var b=$("micBtn");
+  if (b.classList.contains("rec")){ b.classList.remove("rec"); return; }
+  b.classList.add("rec");
+  $("capHint").textContent = "Listening… release when you stop talking. Nothing is sent anywhere.";
+  setTimeout(function(){
+    b.classList.remove("rec");
+    capInput.value = "Ask the landlord about the water bill";
+    capSave.disabled=false;
+    $("capHint").textContent = "Heard it. Edit before saving if it got a word wrong.";
+  }, 1500);
+});
+
+function saveCapture(){
+  var text = capInput.value.trim();
+  if(!text) return;
+  var where = pendingChip==="here" ? "Post office" : pendingChip==="tonight" ? "Tonight" : pendingChip==="none" ? "No date" : "Today";
+  state.later.push({ id:"n"+Date.now(), title:text, meta:where, src: pendingChip==="here" ? "place" : null, srcLabel:"at the post office" });
+  closeSheet();
+  if (state.scene==="home") renderHome();
+  showToast("Saved to "+where, "on this phone · "+nowStamp(), function(){
+    state.later.pop();
+    if (state.scene==="home") renderHome();
+  });
+}
+
+/* ---------------- toast + undo ---------------- */
+var toast=$("toast"), ringFg=$("ringFg"), toastTimer=null, ringTimer=null, undoAction=null;
+var CIRC = 50.3, UNDO_MS = 6000;
+
+function showToast(t1, t2, onUndo){
+  clearTimeout(toastTimer); clearInterval(ringTimer);
+  $("toastT1").textContent = t1;
+  $("toastT2").textContent = t2;
+  undoAction = onUndo || null;
+  $("undoBtn").style.display = onUndo ? "" : "none";
+  toast.classList.add("on");
+  ringFg.style.transition="none"; ringFg.style.strokeDashoffset="0";
+  void ringFg.offsetWidth;
+  ringFg.style.transition="stroke-dashoffset "+(UNDO_MS/1000)+"s linear";
+  ringFg.style.strokeDashoffset = String(CIRC);
+  toastTimer = setTimeout(hideToast, UNDO_MS);
+}
+function hideToast(){ toast.classList.remove("on"); undoAction=null; }
+$("undoBtn").addEventListener("click", function(){
+  if (undoAction) undoAction();
+  clearTimeout(toastTimer);
+  hideToast();
+  showToastPlain("Undone", "nothing was saved");
+});
+function showToastPlain(t1,t2){
+  $("toastT1").textContent=t1; $("toastT2").textContent=t2;
+  $("undoBtn").style.display="none";
+  toast.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(hideToast, 2200);
+}
+
+/* ---------------- home ---------------- */
+function taskNode(t, opts){
+  opts = opts||{};
+  var n = el("div","task"+(opts.focus?" focus":"")+(opts.checked?" checked":""));
+  var box = el("button","box"+(opts.checked?" done":"")+(t.src==="wait"?" sys":""));
+  box.setAttribute("aria-label","Mark "+t.title+" done");
+  if (opts.checked) box.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  var meta = '<div class="m">'+esc(t.meta||"");
+  if (t.src==="msg") meta += ' <span class="src msg">from Ana · Messages</span>';
+  if (t.src==="place") meta += ' <span class="src place">at the post office</span>';
+  if (t.src==="wait") meta += ' <span class="src wait">waiting on your bank</span>';
+  meta += '</div>';
+  var body = el("div", null, '<div class="t">'+esc(t.title)+'</div>'+meta);
+  body.style.flex="1"; body.style.minWidth="0";
+  n.appendChild(box); n.appendChild(body);
+  if (!opts.checked){
+    box.addEventListener("click", function(){
+      var idx = state.later.indexOf(t);
+      if (idx>-1) state.later.splice(idx,1);
+      if (state.now && state.now.id===t.id) { state.now = state.later.shift() || null; }
+      state.done.push({ txt:t.title, ts:nowStamp(), sys:false });
+      renderHome(); renderThread(); renderNow();
+      showToast("Done · "+t.title, "recorded on this phone · "+nowStamp(), function(){
+        state.done.pop(); state.later.unshift(t); renderHome(); renderThread();
+      });
+    });
+  }
+  return n;
+}
+
+function renderHome(){
+  var nowWrap=$("homeNow"), later=$("homeLater"), done=$("homeDone");
+  nowWrap.innerHTML=""; later.innerHTML=""; done.innerHTML="";
+  if (state.now) nowWrap.appendChild(taskNode(state.now, {focus:true}));
+  else nowWrap.appendChild(el("div","foot-note","Nothing is due right now. That is allowed."));
+  state.later.forEach(function(t){ later.appendChild(taskNode(t,{})); });
+  state.done.slice().reverse().forEach(function(d){
+    done.appendChild(taskNode({title:d.txt, meta:d.ts+(d.sys?" · you confirmed":"")}, {checked:true}));
+  });
+  var open = (state.now?1:0)+state.later.length;
+  $("homeSub").textContent = open+" open · "+state.done.length+" done";
+}
+
+/* ---------------- chat → task ---------------- */
+var hotMsg=$("hotMsg"), ctxMenu=$("ctxMenu"), holdTimer=null;
+function showCtx(){
+  hotMsg.classList.add("lifted");
+  var r = hotMsg.getBoundingClientRect(), s = $("screen").getBoundingClientRect();
+  ctxMenu.style.left = (r.left - s.left)+"px";
+  ctxMenu.style.top = (r.bottom - s.top + 10)+"px";
+  ctxMenu.classList.add("on");
+}
+function hideCtx(){ ctxMenu.classList.remove("on"); hotMsg.classList.remove("lifted"); }
+hotMsg.addEventListener("pointerdown", function(){ holdTimer = setTimeout(showCtx, 380); });
+["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+  hotMsg.addEventListener(ev, function(){ clearTimeout(holdTimer); });
+});
+hotMsg.addEventListener("click", function(){ clearTimeout(holdTimer); showCtx(); });
+$("makeTask").addEventListener("click", function(){
+  hideCtx();
+  state.later.push({ id:"m"+Date.now(), title:"Send Ana the October attribution deck", meta:"Before standup", src:"msg" });
+  showToast("Task made from Ana's message", "keeps a link back to the thread", function(){ state.later.pop(); });
+});
+
+/* ---------------- inferred completion ---------------- */
+$("yesDone").addEventListener("click", function(){
+  var i = state.later.findIndex(function(t){ return t.title.indexOf("electricity")>-1; });
+  if (i>-1){ state.later.splice(i,1); }
+  if (state.now && state.now.title.indexOf("electricity")>-1){ state.now = state.later.shift()||null; renderNow(); }
+  state.done.push({ txt:"Paid the electricity bill", ts:"3:12 PM", sys:true });
+  renderThread();
+  showToast("Marked done", "your confirmation · bank alert 3:12 PM", function(){ state.done.pop(); renderThread(); });
+});
+$("notDone").addEventListener("click", function(){
+  showToastPlain("Left open", "the guess was recorded as wrong");
+});
+$("toAuto2").addEventListener("click", function(){ goStep(4); });
+$("toAuto").addEventListener("click", function(){ show("auto"); });
+$("backHome").addEventListener("click", function(){ show("home"); });
+
+/* ---------------- automations ---------------- */
+function renderSignals(){
+  var wrap=$("sigList"); wrap.innerHTML="";
+  state.signals.forEach(function(s){
+    var n = el("div","sig");
+    n.innerHTML =
+      '<div class="r1"><div class="t">'+s.t+'</div></div>'+
+      '<div class="d">'+s.d+'</div>'+
+      '<div class="cando">'+esc(s.cando).replace(/\n/g,"<br>")+'</div>';
+    var sw = el("button","sw"+(s.on?" on":""));
+    sw.setAttribute("role","switch");
+    sw.setAttribute("aria-checked", String(s.on));
+    sw.setAttribute("aria-label", s.t);
+    sw.addEventListener("click", function(){
+      s.on=!s.on; sw.classList.toggle("on",s.on); sw.setAttribute("aria-checked",String(s.on));
+      showToastPlain(s.on ? s.t+" is on" : s.t+" is off", s.on ? "it will ask before marking anything" : "past data from this signal was deleted");
+    });
+    n.querySelector(".r1").appendChild(sw);
+    wrap.appendChild(n);
+  });
+}
+
+/* ---------------- evening review ---------------- */
+function renderReview(){
+  var prog=$("revProg"), body=$("revBody");
+  prog.innerHTML=""; body.innerHTML="";
+  state.captures.forEach(function(_,i){
+    var b=el("i"); if(i<state.revIndex) b.className="on"; prog.appendChild(b);
+  });
+  if (state.revIndex >= state.captures.length){
+    $("revH1").textContent="All clear";
+    $("revP").textContent="That is the whole review. Onhand goes quiet until tomorrow.";
+    var d=el("div","rdone");
+    d.innerHTML='<div class="big"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>'+
+      '<h2>Sorted in 40 seconds</h2><p>Three rough captures turned into two tasks and one you let go. Nothing interrupted you to get here.</p>';
+    var again=el("button","btn","Run it again");
+    again.style.marginTop="18px";
+    again.addEventListener("click", function(){ state.revIndex=0; renderReview(); });
+    d.appendChild(again);
+    body.appendChild(d);
+    return;
+  }
+  $("revH1").textContent = "Three rough captures";
+  $("revP").textContent = "You wrote these down without stopping. Sort them now, or leave them and they will wait.";
+  var c = state.captures[state.revIndex];
+  var card = el("div","rcard");
+  card.innerHTML = '<div class="cap">'+esc(c.txt)+'</div><div class="when">'+esc(c.when)+'</div>';
+  var acts = el("div","acts");
+  [["Make it a task for tomorrow","task"],["Tie it to a place","place"],["Let it go","drop"]].forEach(function(a){
+    var b = el("button","btn", a[0]);
+    if (a[1]==="task") b.className="btn primary";
+    b.addEventListener("click", function(){
+      if (a[1]==="task"){ state.later.push({ id:"r"+Date.now(), title:c.txt, meta:"Tomorrow", src:null }); }
+      state.revIndex++;
+      renderReview();
+      if (a[1]==="drop") showToastPlain("Let go", "not everything you write down is a task");
+    });
+    acts.appendChild(b);
+  });
+  card.appendChild(acts);
+  body.appendChild(card);
+}
+
+/* ---------------- nav ---------------- */
+$("nextBtn").addEventListener("click", function(){ goStep(state.step+1); });
+$("prevBtn").addEventListener("click", function(){ goStep(state.step-1); });
+document.addEventListener("keydown", function(e){
+  if (e.target.tagName==="INPUT") return;
+  if (e.key==="ArrowRight") goStep(state.step+1);
+  if (e.key==="ArrowLeft") goStep(state.step-1);
+  if (e.key==="Escape"){ closeSheet(); hideCtx(); }
+});
+document.addEventListener("click", function(e){
+  if (ctxMenu.classList.contains("on") && !ctxMenu.contains(e.target) && e.target!==hotMsg) hideCtx();
+});
+window.addEventListener("resize", function(){ railGeom(); resetRail(); });
+
+/* ---------------- boot ---------------- */
+document.querySelector('#capChips .chip').classList.add("on");
+renderThread(); renderNow(); renderSteps(); show("lock");
+setTimeout(function(){ railGeom(); resetRail(); }, 60);
+
+})();
+</script>
+</body>
+</html>
